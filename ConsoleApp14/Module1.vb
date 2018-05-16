@@ -1,4 +1,4 @@
-﻿Module Module1
+Module Module1
 
     Sub Main()
         Dim CostOfEachSung As Integer() = {
@@ -26,9 +26,12 @@
             20, 30, 40
         }
 
-        Dim RepeatCount As Integer = 100000
+        Dim Costs(1000) As Integer
+        Dim Destroys(50) As Integer
+
+        Dim RepeatCount As Integer = 200000
         Dim Goal As Integer = 22
-        Dim StarCatch As Boolean = False
+        Dim StarCatch As Integer = 0
         Dim AntiDestroy As Boolean = True '0~16
 
         Dim NowFailCnt As Integer = 0
@@ -50,7 +53,9 @@
         Dim rd As New Random
         Dim Percent As Integer = 0
         Dim DistroyP As Integer = 0
-        For i = 1 To RepeatCount
+
+        For i As Integer = 1 To RepeatCount
+
             While True
                 If (NowSung < 17) And (AntiDestroy = True) Then
                     NowCost = NowCost + CostOfEachSung(NowSung) + CostOfEachSung(NowSung)
@@ -60,14 +65,14 @@
                     DistroyP = rd.Next(0, 99)
                 End If
 
-                If isChanceTIme >= 2 Then
+                If isChanceTime >= 2 Then
                     Percent = 0
-                    isChanceTIme = 0
+                    isChanceTime = 0
                 Else
                     Percent = rd.Next(0, 99)
                 End If
 
-                If Percent < SuccessRateOfEachSung(NowSung) Then
+                If Percent < (SuccessRateOfEachSung(NowSung) + StarCatch) Then
                     NowSuccessCnt = NowSuccessCnt + 1
                     NowSung = NowSung + 1
                 Else
@@ -82,13 +87,26 @@
                             NowKeepCnt = NowKeepCnt + 1
                         Else
                             NowSung = NowSung - 1
-                            isChanceTIme = isChanceTIme + 1
+                            isChanceTime = isChanceTime + 1
                         End If
                     End If
                 End If
                 If NowSung >= Goal Then Exit While
             End While
 
+            For j As ULong = 0 To 1000
+                If NowCost < ((j + 1) * 100000000) Then
+                    Costs(j) = Costs(j) + 1
+                    Exit For
+                End If
+            Next
+
+            For j As ULong = 0 To 50
+                If NowDistroyCnt < (j + 1) Then
+                    Destroys(j) = Destroys(j) + 1
+                    Exit For
+                End If
+            Next
             TotlCost = TotlCost + NowCost
             TotlSuccessCnt = TotlSuccessCnt + NowSuccessCnt
             TotlFailCnt = TotlFailCnt + NowFailCnt
@@ -101,6 +119,7 @@
             NowFailCnt = 0
             NowKeepCnt = 0
             NowDistroyCnt = 0
+
         Next
 
         Console.WriteLine()
@@ -110,6 +129,19 @@
         Console.WriteLine("평균 유지 횟수: " & (TotlKeepCnt / RepeatCount))
         Console.WriteLine("평균 파괴 횟수: " & (TotlDistroyCnt / RepeatCount))
 
+        Console.WriteLine()
+
+        Console.WriteLine("도수분포")
+
+        For j As Integer = 0 To 1000
+            Console.WriteLine(Costs(j)) 'j & " 억" & Chr(9) & 
+        Next
+        Console.WriteLine()
+        Console.WriteLine("파괴")
+
+        For j As Integer = 0 To 50
+            Console.WriteLine(Destroys(j)) 'j & " 회 파괴" & Chr(9) & 
+        Next
         Console.ReadLine()
     End Sub
 
